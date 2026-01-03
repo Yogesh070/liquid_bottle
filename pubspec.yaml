@@ -1,6 +1,6 @@
 name: liquid_bottle
 description: "Get the liquid bottle"
-version: 0.0.1
+version: 0.0.3
 repository: https://github.com/Yogesh070/liquid_bottle
 
 environment:
@@ -23,9 +23,8 @@ dev_dependencies:
 flutter:
 
   # To add assets to your package, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/logo/
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/to/asset-from-package

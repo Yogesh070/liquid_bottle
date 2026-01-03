@@ -9,6 +9,13 @@ class LiquidBottleSlider extends StatefulWidget {
   final ValueChanged<double> onChanged;
   final BottleType bottleType;
   final Color liquidColor;
+  final CustomPainter Function(
+    BuildContext context,
+    double visualFill,
+    double rawFill,
+    Color liquidColor,
+  )?
+  customPainterBuilder;
 
   const LiquidBottleSlider({
     super.key,
@@ -16,6 +23,7 @@ class LiquidBottleSlider extends StatefulWidget {
     required this.onChanged,
     required this.bottleType,
     this.liquidColor = const Color(0xFFC6A984), // Whiskey color
+    this.customPainterBuilder,
   });
 
   @override
@@ -184,16 +192,23 @@ class _LiquidBottleSliderState extends State<LiquidBottleSlider>
             onVerticalDragEnd: _onDragEnd,
             child: CustomPaint(
               size: Size(constraints.maxWidth, constraints.maxHeight),
-              painter: LiquidBottlePainter(
-                path: BottlePathFactory.buildPath(
-                  widget.bottleType.id,
-                  Size(constraints.maxWidth, constraints.maxHeight),
-                ),
-                fillLevel: visualFill,
-                liquidColor: widget.liquidColor,
-                bottleType: widget.bottleType,
-                currentFillPercent: widget.value,
-              ),
+              painter: widget.customPainterBuilder != null
+                  ? widget.customPainterBuilder!(
+                      context,
+                      visualFill,
+                      _currentDragValue,
+                      widget.liquidColor,
+                    )
+                  : LiquidBottlePainter(
+                      path: BottlePathFactory.buildPath(
+                        widget.bottleType.id,
+                        Size(constraints.maxWidth, constraints.maxHeight),
+                      ),
+                      fillLevel: visualFill,
+                      liquidColor: widget.liquidColor,
+                      bottleType: widget.bottleType,
+                      currentFillPercent: widget.value,
+                    ),
             ),
           ),
         );

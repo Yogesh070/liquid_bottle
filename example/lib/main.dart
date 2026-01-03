@@ -30,15 +30,65 @@ class LiquidBottleShowcase extends StatefulWidget {
   State<LiquidBottleShowcase> createState() => _LiquidBottleShowcaseState();
 }
 
+class _BottleConfig {
+  final String id;
+  final String name;
+  final String volume;
+  final BrandedBottleType type;
+  final double defaultFill;
+  final Offset labelOffset;
+  final double labelScale;
+
+  const _BottleConfig({
+    required this.id,
+    required this.name,
+    required this.volume,
+    required this.type,
+    required this.defaultFill,
+    this.labelOffset = Offset.zero,
+    this.labelScale = 1.0,
+  });
+}
+
 class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
   late PageController _pageController;
-  int _currentIndex = 4; // Standard Bottle
+  int _currentIndex = 0; // Starts at Bacardi
 
   final Map<String, double> _fillLevels = {};
+
+  final List<_BottleConfig> _bottles = [
+    _BottleConfig(
+      id: 'bacardi',
+      name: "BACARDÍ",
+      volume: "750ml • 25.4 oz",
+      type: BrandedBottleType.bacardi,
+      defaultFill: 0.75,
+    ),
+    _BottleConfig(
+      id: 'bombay',
+      name: "BOMBAY SAPPHIRE",
+      volume: "750ml • 25.4 oz",
+      type: BrandedBottleType.bombaySapphire,
+      defaultFill: 0.65,
+      labelOffset: const Offset(0, 10),
+      labelScale: 0.5,
+    ),
+    _BottleConfig(
+      id: 'jose',
+      name: "JOSE CUERVO",
+      volume: "750ml • 25.4 oz",
+      type: BrandedBottleType.joseCuervo,
+      defaultFill: 0.70,
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
+    for (var bottle in _bottles) {
+      _fillLevels[bottle.id] = bottle.defaultFill;
+    }
+
     _pageController = PageController(
       initialPage: _currentIndex,
       viewportFraction: 0.65,
@@ -49,6 +99,13 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  String _getCurrentId(int index) {
+    if (index >= 0 && index < _bottles.length) {
+      return _bottles[index].id;
+    }
+    return '';
   }
 
   @override
@@ -72,11 +129,23 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: BottleType.standards.length,
+                itemCount: _bottles.length,
                 onPageChanged: (index) => setState(() => _currentIndex = index),
                 itemBuilder: (context, index) {
-                  final type = BottleType.standards[index];
                   final isFocused = index == _currentIndex;
+                  final bottle = _bottles[index];
+
+                  Widget content = BrandedBottle(
+                    type: bottle.type,
+                    fillLevel: _fillLevels[bottle.id] ?? bottle.defaultFill,
+                    labelOffset: bottle.labelOffset,
+                    labelScale: bottle.labelScale,
+                    onFillChanged: (val) {
+                      setState(() {
+                        _fillLevels[bottle.id] = val;
+                      });
+                    },
+                  );
 
                   // Animate scaling for focus effect
                   return AnimatedBuilder(
@@ -111,7 +180,7 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
                           child: Column(
                             children: [
                               Text(
-                                type.name.toUpperCase(),
+                                bottle.name,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w300,
@@ -121,7 +190,7 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "${type.volumeMl}ml  •  ${type.imperialVol}",
+                                bottle.volume,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.amber,
@@ -133,35 +202,7 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
                         ),
                         const SizedBox(height: 30),
 
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              double width = constraints.maxWidth;
-                              double height = width / type.aspectRatio;
-
-                              if (height > constraints.maxHeight) {
-                                height = constraints.maxHeight;
-                                width = height * type.aspectRatio;
-                              }
-
-                              return Center(
-                                child: SizedBox(
-                                  width: width,
-                                  height: height,
-                                  child: LiquidBottleSlider(
-                                    bottleType: type,
-                                    value: _fillLevels[type.id] ?? 0.5,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        _fillLevels[type.id] = val;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                        Expanded(child: content),
                       ],
                     ),
                   );
@@ -169,12 +210,11 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
               ),
             ),
 
-            // Bottom Indicator or Controls
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.only(bottom: 30.0),
               child: Text(
-                "${((_fillLevels[BottleType.standards[_currentIndex].id] ?? 0.5) * 100).toInt()}% FULL",
+                "${((_fillLevels[_getCurrentId(_currentIndex)] ?? 0.5) * 100).toInt()}% FULL",
                 style: const TextStyle(
                   fontSize: 60,
                   fontWeight: FontWeight.w100,
