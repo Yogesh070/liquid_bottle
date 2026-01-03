@@ -11,3 +11,7 @@
 * Added `BrandedBottle` widget with support for Bacardi, Bombay Sapphire, and Jose Cuervo.
 * Added `customPainterBuilder` to `LiquidBottleSlider` for custom bottle rendering.
 * Included assets for branded bottle logos.
+
+## 0.0.4
+
+* Added `PatronBottle` widget with support for Patron.

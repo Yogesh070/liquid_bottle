@@ -79,6 +79,15 @@ class _LiquidBottleShowcaseState extends State<LiquidBottleShowcase> {
       volume: "750ml • 25.4 oz",
       type: BrandedBottleType.joseCuervo,
       defaultFill: 0.70,
+      labelScale: 1.5,
+      labelOffset: const Offset(-8, 0),
+    ),
+    _BottleConfig(
+      id: 'patron',
+      name: "PATRÓN",
+      volume: "750ml • 25.4 oz",
+      type: BrandedBottleType.patron,
+      defaultFill: 0.60,
     ),
   ];
 

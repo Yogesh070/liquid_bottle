@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'bottle_type.dart';
 import 'liquid_bottle_slider.dart';
 
-enum BrandedBottleType { bacardi, bombaySapphire, joseCuervo }
+enum BrandedBottleType { bacardi, bombaySapphire, joseCuervo, patron }
 
 class BrandedBottle extends StatefulWidget {
   final BrandedBottleType type;
@@ -58,6 +58,13 @@ class _BrandedBottleState extends State<BrandedBottle> {
         _labelImage == null) {
       _loadImage(
         'assets/logo/sapphire_logo.png',
+        (img) => _labelImage = img,
+        package: 'liquid_bottle',
+      );
+    } else if (widget.type == BrandedBottleType.joseCuervo &&
+        _labelImage == null) {
+      _loadImage(
+        'assets/logo/jose_cuervo.png',
         (img) => _labelImage = img,
         package: 'liquid_bottle',
       );
@@ -133,7 +140,23 @@ class _BrandedBottleState extends State<BrandedBottle> {
             bottleWidth = bottleHeight * 0.35;
             liquidColor = const Color(0xFFFFC107).withValues(alpha: 0.85);
             painterFactory = (visualLevel, rawLevel, color) =>
-                JoseCuervoPainter(fillLevel: visualLevel, liquidColor: color);
+                JoseCuervoPainter(
+                  fillLevel: visualLevel,
+                  liquidColor: color,
+                  labelImage: _labelImage,
+                  labelScale: widget.labelScale,
+                  labelOffset: widget.labelOffset,
+                );
+            break;
+          case BrandedBottleType.patron:
+            // Patron is squat: width is nearly equal to body height
+            bottleWidth = bottleHeight * 0.65;
+            liquidColor = const Color(0xFFE3F2FD).withValues(alpha: 0.5);
+            painterFactory = (visualLevel, rawLevel, color) =>
+                PatronBottlePainter(
+                  fillLevel: visualLevel,
+                  liquidColor: liquidColor,
+                );
             break;
         }
 
@@ -803,8 +826,17 @@ class BombaySapphirePainter extends CustomPainter {
 class JoseCuervoPainter extends CustomPainter {
   final double fillLevel;
   final Color liquidColor;
+  final ui.Image? labelImage;
+  final double labelScale;
+  final Offset labelOffset;
 
-  JoseCuervoPainter({required this.fillLevel, required this.liquidColor});
+  JoseCuervoPainter({
+    required this.fillLevel,
+    required this.liquidColor,
+    this.labelImage,
+    this.labelScale = 1.0,
+    this.labelOffset = Offset.zero,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1045,138 +1077,26 @@ class JoseCuervoPainter extends CustomPainter {
     final double labelW = w * 0.82;
 
     final Rect rect = Rect.fromCenter(
-      center: Offset(centerX, labelTop + labelH / 2),
-      width: labelW,
-      height: labelH,
+      center: Offset(centerX, labelTop + labelH / 2) + labelOffset,
+      width: labelW * labelScale,
+      height: labelH * labelScale,
     );
 
-    // --- Label Shape (Arch) ---
-    final Path labelPath = Path();
-    // Top Arch (Medallions area)
-    // The arch is more of a rounded rectangle top
-    final double archH = 30.0;
-    labelPath.moveTo(rect.left, rect.top + archH);
-    labelPath.quadraticBezierTo(
-      centerX,
-      rect.top - 10,
-      rect.right,
-      rect.top + archH,
-    );
-    // Right side
-    labelPath.lineTo(rect.right, rect.bottom - 5);
-    // Bottom (Curved slightly)
-    labelPath.quadraticBezierTo(
-      centerX,
-      rect.bottom + 5,
-      rect.left,
-      rect.bottom - 5,
-    );
-    labelPath.close();
-
-    // Background (Parchment Yellow)
-    final Paint bgPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [const Color(0xFFFFECB3), const Color(0xFFFFD54F)],
-      ).createShader(rect);
-    canvas.drawPath(labelPath, bgPaint);
-
-    // Inner Border Line (Gold/Orange)
-    canvas.drawPath(
-      labelPath,
-      Paint()
-        ..color = const Color(0xFFFF6F00).withValues(alpha: 0.5)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3,
-    );
-    canvas.drawPath(
-      labelPath,
-      Paint()
-        ..color = Colors.white.withValues(alpha: 0.8)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1,
-    );
-
-    // --- Medallions (Top Arch) ---
-    // 7 coins
-    double coinY = rect.top + 15;
-    for (int i = -3; i <= 3; i++) {
-      // Arch the coins slightly
-      double yOff = (i.abs() * 2).toDouble();
-      Offset coinPos = Offset(centerX + (i * 14), coinY + yOff);
-      canvas.drawCircle(
-        coinPos,
-        6,
-        Paint()..color = const Color(0xFFD7CCC8),
-      ); // Silver/Grey
-      canvas.drawCircle(
-        coinPos,
-        6,
-        Paint()
-          ..color = Colors.black26
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.5,
+    if (labelImage != null) {
+      paintImage(
+        canvas: canvas,
+        rect: rect,
+        image: labelImage!,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
       );
+    } else {
+      // Fallback placeholder
+      final paint = Paint()
+        ..color = Colors.grey.withValues(alpha: 0.3)
+        ..style = PaintingStyle.fill;
+      canvas.drawRect(rect, paint);
     }
-
-    // --- Text Content ---
-
-    // "Jose" - Gothic/Blackletterish
-    _drawText(
-      canvas,
-      "Jose",
-      offset: Offset(centerX, rect.top + 60),
-      style: const TextStyle(
-        color: Colors.black,
-        fontSize: 18,
-        fontFamily: 'serif',
-        fontWeight: FontWeight.bold, // Fallback to serif bold
-      ),
-    );
-
-    // "Cuervo" - Big and Bold
-    _drawText(
-      canvas,
-      "Cuervo",
-      offset: Offset(centerX, rect.top + 90),
-      style: const TextStyle(
-        color: Colors.black,
-        fontSize: 34,
-        fontFamily: 'serif',
-        fontWeight: FontWeight.w900,
-        letterSpacing: -1.5,
-      ),
-    );
-
-    // "Especial" - Serif
-    _drawText(
-      canvas,
-      "Especial",
-      offset: Offset(centerX, rect.top + 120),
-      style: const TextStyle(
-        color: Color(0xFFBF360C),
-        fontSize: 18, // Rust color
-        fontFamily: 'serif',
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.5,
-      ),
-    );
-
-    // Red Wax Seal (Bottom Left)
-    Offset sealPos = Offset(rect.left + 25, rect.bottom - 30);
-    // Outer crimped edge
-    canvas.drawCircle(sealPos, 16, Paint()..color = const Color(0xFFB71C1C));
-    // Inner circle
-    canvas.drawCircle(sealPos, 12, Paint()..color = const Color(0xFFD32F2F));
-    // Details
-    canvas.drawCircle(
-      sealPos,
-      12,
-      Paint()
-        ..color = Colors.black26
-        ..style = PaintingStyle.stroke,
-    );
   }
 
   void _drawBottomLabel(
@@ -1280,6 +1200,467 @@ class JoseCuervoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant JoseCuervoPainter oldDelegate) {
+    return oldDelegate.fillLevel != fillLevel;
+  }
+}
+
+class PatronBottlePainter extends CustomPainter {
+  final double fillLevel;
+  final Color liquidColor;
+
+  PatronBottlePainter({required this.fillLevel, required this.liquidColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final centerX = w / 2;
+
+    // --- Dimensions ---
+    // Start drawing bottle from below the cork
+    final double corkSize = w * 0.35; // Large round cork
+    final double neckTopY = corkSize * 0.85; // Overlap slightly
+
+    // Neck
+    final double neckW = w * 0.28;
+    final double neckH = h * 0.18;
+    final double shoulderStart = neckTopY + neckH;
+
+    // Body
+    // Patron body is bulbous.
+    // It widens from shoulder, then tapers slightly to base.
+    final double bodyMaxW = w;
+    final double bodyBottomW = w * 0.92;
+    // Base is heavy glass
+    final double baseH = 20;
+
+    // --- 1. Path Definition ---
+    final path = Path();
+
+    // Top of Neck (Lip)
+    final double lipW = neckW * 1.2;
+    final double lipH = 8;
+
+    // Start at Top Left of neck lip
+    path.moveTo(centerX - lipW / 2, neckTopY);
+    path.lineTo(centerX + lipW / 2, neckTopY);
+
+    // Resize to regular neck width
+    path.lineTo(centerX + neckW / 2, neckTopY + lipH);
+
+    // Neck down
+    path.lineTo(centerX + neckW / 2, shoulderStart);
+
+    // Shoulder Curve (Smooth convex)
+    path.cubicTo(
+      centerX + neckW / 2 + 20,
+      shoulderStart + 10,
+      bodyMaxW,
+      shoulderStart + 40,
+      bodyMaxW,
+      shoulderStart + (h - shoulderStart) * 0.4,
+    );
+
+    // Body Side (Taper to bottom)
+    // It's bumpy in the photo (horizontal ripples?). The image shows slight wave/ripples on the side.
+    // Let's do a subtle wave
+    double sideY = shoulderStart + (h - shoulderStart) * 0.4;
+    double bottomY = h - baseH;
+
+    // Let's just do a smooth curve for now, maybe add ripple detail in "glass" pass
+    path.quadraticBezierTo(bodyMaxW, bottomY - 30, bodyBottomW, bottomY);
+
+    // Bottom Corner
+    path.quadraticBezierTo(bodyBottomW, h, bodyBottomW - 20, h);
+
+    // Bottom Center
+    path.lineTo(w - (bodyBottomW - 20), h);
+
+    // Bottom Left Corner
+    path.quadraticBezierTo(w - bodyBottomW, h, w - bodyBottomW, bottomY);
+
+    // Left Side
+    path.quadraticBezierTo(
+      0,
+      bottomY - 30,
+      0,
+      sideY, // Approx symmetrical
+    );
+
+    // Left Shoulder
+    path.cubicTo(
+      0,
+      shoulderStart + 40,
+      centerX - neckW / 2 - 20,
+      shoulderStart + 10,
+      centerX - neckW / 2,
+      shoulderStart,
+    );
+
+    // Left Neck
+    path.lineTo(centerX - neckW / 2, neckTopY + lipH);
+    path.lineTo(centerX - lipW / 2, neckTopY);
+    path.close();
+
+    // --- 2. Glass & Liquid ---
+
+    // Glass Fill
+    final glassPaint = Paint()
+      ..color = const Color(0xFFF0F4F8)
+          .withValues(alpha: 0.2) // Clear glass
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, glassPaint);
+
+    // Liquid
+    canvas.save();
+    canvas.clipPath(path);
+
+    // Liquid Level
+    final double liquidH = (h - 20) * fillLevel; // Subtract base
+    final double surfaceY = h - 20 - liquidH;
+
+    final Paint liquidPaint = Paint()
+      ..color = liquidColor
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRect(Rect.fromLTRB(0, surfaceY, w, h + 100), liquidPaint);
+
+    // Surface
+    if (fillLevel > 0 && fillLevel < 1.0) {
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: Offset(centerX, surfaceY),
+          width: w * 0.8,
+          height: 10,
+        ),
+        Paint()..color = Colors.white.withValues(alpha: 0.4),
+      );
+    }
+
+    canvas.restore();
+
+    // Glass Border
+    final Paint borderPaint = Paint()
+      ..color = Colors.blueGrey.withValues(alpha: 0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    canvas.drawPath(path, borderPaint);
+
+    // Add side ripple lines for that "blown glass" look on the sides
+    _drawGlassRipples(canvas, path, w, h, shoulderStart);
+
+    // --- 3. Details ---
+
+    // Cork
+    _drawCork(canvas, centerX, neckTopY, corkSize);
+
+    // Neck Label (Green Ribbon)
+    _drawNeckLabel(canvas, centerX, neckW, neckTopY, neckH);
+
+    // Main Logo & Text
+    _drawMainLabel(canvas, centerX, h, shoulderStart);
+  }
+
+  void _drawCork(Canvas canvas, double centerX, double neckY, double size) {
+    // Large round ball, slightly flattened bottom where it meets glass
+    final double r = size / 2;
+    final Offset center = Offset(
+      centerX,
+      neckY - r + 10,
+    ); // Sit inside neck slightly
+
+    final Paint corkPaint = Paint()
+      ..color = const Color(0xFFD7CCC8); // Base cork color
+
+    // Add texture (noise/dots)
+    // We'll use a shader for texture
+    // For now, simpler gradient
+    final Gradient corkGrad = RadialGradient(
+      colors: [const Color(0xFFEFEBE9), const Color(0xFFA1887F)],
+      center: Alignment(-0.3, -0.3),
+      radius: 1.0,
+    );
+
+    corkPaint.shader = corkGrad.createShader(
+      Rect.fromCircle(center: center, radius: r),
+    );
+
+    canvas.drawCircle(center, r, corkPaint);
+
+    // Draw some "cork holes"
+    final Paint spotPaint = Paint()
+      ..color = const Color(0xFF5D4037).withValues(alpha: 0.3);
+    final math.Random rnd = math.Random(42);
+    for (int i = 0; i < 20; i++) {
+      double theta = rnd.nextDouble() * 2 * math.pi;
+      double dist = rnd.nextDouble() * (r * 0.8);
+      double spotR = rnd.nextDouble() * 2 + 1;
+      canvas.drawCircle(
+        center + Offset(dist * math.cos(theta), dist * math.sin(theta)),
+        spotR,
+        spotPaint,
+      );
+    }
+  }
+
+  void _drawNeckLabel(
+    Canvas canvas,
+    double centerX,
+    double neckW,
+    double neckTopY,
+    double neckH,
+  ) {
+    // Green band
+    final double bandH = neckH * 0.5;
+    final double bandY = neckTopY + (neckH * 0.2);
+
+    final Rect rect = Rect.fromCenter(
+      center: Offset(centerX, bandY + bandH / 2),
+      width: neckW,
+      height: bandH,
+    );
+
+    // Bright lime-ish green
+    final Paint greenPaint = Paint()
+      //..color = const Color(0xFF76FF03).withValues(alpha: 0.8);
+      // Actually ref image is more of a grassy lively green
+      ..color = const Color(0xFF64DD17);
+
+    canvas.drawRect(rect, greenPaint);
+
+    // Ornate Pattern (darker green swirls)
+    // tough to draw procedurally perfectly, we'll do some loops
+    final Paint patternPaint = Paint()
+      ..color = const Color(0xFF33691E).withValues(alpha: 0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final Path p = Path();
+    // Simple wave pattern
+    for (double x = rect.left; x < rect.right; x += 10) {
+      p.moveTo(x, rect.top + 5);
+      p.quadraticBezierTo(x + 5, rect.top + 15, x + 10, rect.top + 5);
+
+      p.moveTo(x, rect.bottom - 5);
+      p.quadraticBezierTo(x + 5, rect.bottom - 15, x + 10, rect.bottom - 5);
+    }
+    canvas.drawPath(p, patternPaint);
+
+    // Center Bee on neck? (Sometimes is there)
+    // Image shows a bee
+    _drawBee(canvas, Offset(centerX, rect.center.dy), 10);
+  }
+
+  void _drawMainLabel(
+    Canvas canvas,
+    double centerX,
+    double h,
+    double shoulderEnd,
+  ) {
+    // "PATRÓN"
+    // "SILVER"
+    // Bee Logo
+
+    double currentY = shoulderEnd + (h - shoulderEnd) * 0.25;
+
+    // 1. BEE LOGO
+    _drawBee(canvas, Offset(centerX, currentY), 25);
+
+    currentY += 40;
+
+    // 2. PATRÓN
+    _drawText(
+      canvas,
+      "PATRÓN",
+      offset: Offset(centerX, currentY),
+      style: const TextStyle(
+        fontFamily: 'Serif',
+        fontSize: 32,
+        fontWeight: FontWeight.w400, // Usually fairly thin but sharp serifs
+        color: Colors.black,
+        letterSpacing: 2.0,
+      ),
+    );
+    // Small 'circle R' trademark
+    _drawText(
+      canvas,
+      "®",
+      offset: Offset(centerX + 75, currentY - 5), // Rough offset
+      style: const TextStyle(fontSize: 8, color: Colors.black54),
+    );
+
+    currentY += 30;
+
+    // 3. SILVER (Greenish font style?)
+    // Actually usually black or dark grey with green accent line?
+    // Image shows "SILVER" in semi-handwritten or specific font, dark color.
+    // Wait, let's look at the image provided by user... "SILVER" is GREEN.
+    _drawText(
+      canvas,
+      "SILVER",
+      offset: Offset(centerX, currentY),
+      style: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF33691E), // Dark Green
+        fontFamily: 'Sans', // Looks slightly organic
+      ),
+    );
+
+    currentY += 30;
+
+    // 4. TEQUILA 100% DE AGAVE
+    _drawText(
+      canvas,
+      "TEQUILA 100% DE AGAVE",
+      offset: Offset(centerX, currentY),
+      style: const TextStyle(
+        fontSize: 10,
+        color: Colors.black87,
+        letterSpacing: 1.0,
+      ),
+    );
+
+    currentY += 20;
+
+    // 5. HECHO EN MEXICO (Green background pill)
+    // Lime green background
+    final Rect tagRect = Rect.fromCenter(
+      center: Offset(centerX, currentY),
+      width: 100,
+      height: 16,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(tagRect, const Radius.circular(8)),
+      Paint()..color = const Color(0xFF76FF03),
+    );
+    _drawText(
+      canvas,
+      "HECHO EN MEXICO",
+      offset: Offset(centerX, currentY),
+      style: const TextStyle(
+        fontSize: 8,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1B5E20),
+      ),
+    );
+
+    // Bottom text (750ml ... 40% alc)
+    double bottomTxtY = h - 30;
+    _drawText(
+      canvas,
+      "750 ml",
+      offset: Offset(centerX - 60, bottomTxtY),
+      style: const TextStyle(fontSize: 10, color: Colors.black54),
+    );
+    _drawText(
+      canvas,
+      "40% alc./vol.",
+      offset: Offset(centerX + 60, bottomTxtY),
+      style: const TextStyle(fontSize: 10, color: Colors.black54),
+    );
+  }
+
+  void _drawBee(Canvas canvas, Offset center, double size) {
+    // Gold/Bronze Bee
+    final Paint beePaint = Paint()
+      ..color = const Color(0xFFCDA434); // Metallic gold
+
+    // Body (Oval)
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: size, height: size * 1.5),
+      beePaint,
+    );
+
+    // Wings (Two circles/ovals on sides)
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    // Right Wing
+    canvas.rotate(-0.4);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(size * 0.8, -size * 0.2),
+        width: size * 1.2,
+        height: size * 0.6,
+      ),
+      beePaint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    canvas.restore();
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    // Left Wing
+    canvas.rotate(0.4);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(-size * 0.8, -size * 0.2),
+        width: size * 1.2,
+        height: size * 0.6,
+      ),
+      beePaint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    canvas.restore();
+
+    // Head
+    canvas.drawCircle(
+      center - Offset(0, size * 0.6),
+      size * 0.4,
+      beePaint..style = PaintingStyle.fill,
+    );
+  }
+
+  void _drawGlassRipples(
+    Canvas canvas,
+    Path clipPath,
+    double w,
+    double h,
+    double shoulderY,
+  ) {
+    // Subtle white highlights on the sides to simulate the "rippled glass" surface
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    final Paint ripplePaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+
+    // Left ripples
+    for (double y = shoulderY; y < h; y += 40) {
+      canvas.drawLine(Offset(0, y), Offset(w * 0.2, y + 10), ripplePaint);
+    }
+
+    // Right ripples
+    for (double y = shoulderY + 20; y < h; y += 40) {
+      canvas.drawLine(Offset(w, y), Offset(w * 0.8, y + 10), ripplePaint);
+    }
+
+    canvas.restore();
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text, {
+    required Offset offset,
+    required TextStyle style,
+  }) {
+    final TextSpan span = TextSpan(text: text, style: style);
+    final TextPainter tp = TextPainter(
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    tp.layout();
+    tp.paint(canvas, offset - Offset(tp.width / 2, tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(covariant PatronBottlePainter oldDelegate) {
     return oldDelegate.fillLevel != fillLevel;
   }
 }
