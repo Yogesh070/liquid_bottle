@@ -1,6 +1,6 @@
 name: liquid_bottle
 description: "Create stunning liquid bottle animations with realistic physics. Supports custom shapes, branded designs, and interactive liquid volume control."
-version: 0.0.4
+version: 0.0.5
 repository: https://github.com/Yogesh070/liquid_bottle
 
 environment:

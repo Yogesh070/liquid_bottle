@@ -15,3 +15,7 @@
 ## 0.0.4
 
 * Added `PatronBottle` widget with support for Patron.
+
+## 0.0.5
+
+* Add height-based scaling to bottle drawings for improved responsiveness.

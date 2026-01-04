@@ -200,6 +200,7 @@ class BacardiBottlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+    final double scale = h / 600.0;
 
     // --- 1. Path Definition (Bacardi Shape) ---
     final path = Path();
@@ -318,10 +319,10 @@ class BacardiBottlePainter extends CustomPainter {
 
     // --- 3. Labels & Details ---
 
-    _drawCap(canvas, centerX, neckWidth, neckHeight, w);
-    _drawNeckLabel(canvas, centerX, neckWidth, neckHeight);
-    _drawMainLabel(canvas, centerX, shoulderEnd, w, h);
-    _drawBottomLabel(canvas, centerX, w, h);
+    _drawCap(canvas, centerX, neckWidth, neckHeight, w, scale);
+    _drawNeckLabel(canvas, centerX, neckWidth, neckHeight, scale);
+    _drawMainLabel(canvas, centerX, shoulderEnd, w, h, scale);
+    _drawBottomLabel(canvas, centerX, w, h, scale);
   }
 
   void _drawCap(
@@ -330,12 +331,13 @@ class BacardiBottlePainter extends CustomPainter {
     double neckW,
     double neckH,
     double w,
+    double scale,
   ) {
     final double capH = neckH * 0.4;
     final Rect capRect = Rect.fromLTWH(
-      centerX - neckW / 2 - 1,
+      centerX - neckW / 2 - 1 * scale,
       0,
-      neckW + 2,
+      neckW + 2 * scale,
       capH,
     );
 
@@ -349,7 +351,7 @@ class BacardiBottlePainter extends CustomPainter {
     // Horizontal lines on cap
     final Paint linePaint = Paint()
       ..color = Colors.grey[400]!
-      ..strokeWidth = 1;
+      ..strokeWidth = 1 * scale;
     for (int i = 1; i < 4; i++) {
       double y = capH * (i / 4);
       canvas.drawLine(
@@ -365,6 +367,7 @@ class BacardiBottlePainter extends CustomPainter {
     double centerX,
     double neckW,
     double neckH,
+    double scale,
   ) {
     // The black band with "WHITE RUM"
     // Located roughly below the cap logic, midway down neck
@@ -383,7 +386,7 @@ class BacardiBottlePainter extends CustomPainter {
     // Golden borders
     final Paint goldPaint = Paint()
       ..color = const Color(0xFFD4AF37)
-      ..strokeWidth = 2
+      ..strokeWidth = 2 * scale
       ..style = PaintingStyle.stroke;
     canvas.drawLine(labelRect.topLeft, labelRect.topRight, goldPaint);
     canvas.drawLine(labelRect.bottomLeft, labelRect.bottomRight, goldPaint);
@@ -393,9 +396,9 @@ class BacardiBottlePainter extends CustomPainter {
       canvas,
       "WHITE RUM",
       offset: labelRect.center,
-      style: const TextStyle(
+      style: TextStyle(
         color: Colors.white,
-        fontSize: 8,
+        fontSize: 8 * scale,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
       ),
@@ -406,10 +409,10 @@ class BacardiBottlePainter extends CustomPainter {
     _drawText(
       canvas,
       "Facundo Bacardi",
-      offset: Offset(centerX, labelTop - 10),
-      style: const TextStyle(
+      offset: Offset(centerX, labelTop - 10 * scale),
+      style: TextStyle(
         color: Colors.black54,
-        fontSize: 6,
+        fontSize: 6 * scale,
         fontStyle: FontStyle.italic,
         fontFamily: 'Times',
       ),
@@ -422,10 +425,11 @@ class BacardiBottlePainter extends CustomPainter {
     double shoulderEndY,
     double w,
     double h,
+    double scale,
   ) {
     // Main Body Label
     // Starts a bit below shoulder
-    final double labelTop = shoulderEndY + 20;
+    final double labelTop = shoulderEndY + 20 * scale;
     final double labelW = w * 0.75 * labelScale; // Apply scale
     final double labelH = h * 0.35 * labelScale; // Apply scale
 
@@ -454,11 +458,17 @@ class BacardiBottlePainter extends CustomPainter {
     }
   }
 
-  void _drawBottomLabel(Canvas canvas, double centerX, double w, double h) {
+  void _drawBottomLabel(
+    Canvas canvas,
+    double centerX,
+    double w,
+    double h,
+    double scale,
+  ) {
     // Silver rectangular label at the very bottom
-    final double labelH = 40;
+    final double labelH = 40 * scale;
     final double labelW = w * 0.7;
-    final double labelY = h - 60;
+    final double labelY = h - 60 * scale;
 
     final Rect rect = Rect.fromCenter(
       center: Offset(centerX, labelY),
@@ -472,7 +482,7 @@ class BacardiBottlePainter extends CustomPainter {
         colors: [Colors.grey[300]!, Colors.grey[100]!, Colors.grey[300]!],
       ).createShader(rect);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+      RRect.fromRectAndRadius(rect, Radius.circular(4 * scale)),
       bgPaint,
     );
 
@@ -480,16 +490,16 @@ class BacardiBottlePainter extends CustomPainter {
     _drawText(
       canvas,
       "ESTABLECIDO EN 1862",
-      offset: Offset(centerX, labelY - 8),
-      style: const TextStyle(fontSize: 6, color: Colors.black54),
+      offset: Offset(centerX, labelY - 8 * scale),
+      style: TextStyle(fontSize: 6 * scale, color: Colors.black54),
     );
 
     _drawText(
       canvas,
       "SANTIAGO DE CUBA",
-      offset: Offset(centerX, labelY + 2),
-      style: const TextStyle(
-        fontSize: 10,
+      offset: Offset(centerX, labelY + 2 * scale),
+      style: TextStyle(
+        fontSize: 10 * scale,
         fontWeight: FontWeight.bold,
         color: Colors.black87,
       ),
@@ -535,13 +545,14 @@ class BombaySapphirePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+    final double scale = h / 600.0;
     final centerX = w / 2;
 
     // --- Dimensions ---
     final double neckW = w * 0.25;
     final double neckH = h * 0.22;
     // Cap
-    final double capH = 25; // Black screw cap
+    final double capH = 25 * scale; // Black screw cap
 
     // Shoulders
     // They are faceted/angled
@@ -652,7 +663,7 @@ class BombaySapphirePainter extends CustomPainter {
     final Paint facetPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = 1 * scale;
 
     // Left Facet Edge
     canvas.drawLine(
@@ -683,30 +694,36 @@ class BombaySapphirePainter extends CustomPainter {
     final Paint borderPaint = Paint()
       ..color = const Color(0xFF0288D1).withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 1.5 * scale;
     canvas.drawPath(path, borderPaint);
 
     // --- 3. Details ---
 
     // Cap (Black with gold bands)
-    _drawCap(canvas, centerX, neckW, capH);
+    _drawCap(canvas, centerX, neckW, capH, scale);
 
     // Neck Label (The vertical strip down the neck)
-    _drawNeckLabel(canvas, centerX, neckW, capH, neckH);
+    _drawNeckLabel(canvas, centerX, neckW, capH, neckH, scale);
 
     // Main Label
-    _drawMainLabel(canvas, centerX, shoulderEnd, w, h);
+    _drawMainLabel(canvas, centerX, shoulderEnd, w, h, scale);
   }
 
-  void _drawCap(Canvas canvas, double centerX, double neckW, double capH) {
-    final double capW = neckW + 2;
+  void _drawCap(
+    Canvas canvas,
+    double centerX,
+    double neckW,
+    double capH,
+    double scale,
+  ) {
+    final double capW = neckW + 2 * scale;
     final Rect capRect = Rect.fromLTWH(centerX - capW / 2, 0, capW, capH);
 
     canvas.drawRect(capRect, Paint()..color = const Color(0xFF1A1A1A)); // Black
 
     // Gold rings
     canvas.drawRect(
-      Rect.fromLTWH(capRect.left, capH - 5, capW, 2),
+      Rect.fromLTWH(capRect.left, capH - 5 * scale, capW, 2 * scale),
       Paint()..color = const Color(0xFFFFD700),
     );
   }
@@ -717,6 +734,7 @@ class BombaySapphirePainter extends CustomPainter {
     double neckW,
     double capH,
     double neckH,
+    double scale,
   ) {
     // Vertical Gold Strip hanging from cap
     final double stripW = neckW * 0.4;
@@ -745,7 +763,7 @@ class BombaySapphirePainter extends CustomPainter {
     );
 
     // Little Blue Gem at bottom of strip
-    _drawGem(canvas, Offset(centerX, stripRect.bottom + 5), 5);
+    _drawGem(canvas, Offset(centerX, stripRect.bottom + 5 * scale), 5 * scale);
   }
 
   void _drawMainLabel(
@@ -754,10 +772,11 @@ class BombaySapphirePainter extends CustomPainter {
     double shoulderBottom,
     double w,
     double h,
+    double scale,
   ) {
     // Rectangular Label with Gold Border
     final double labelW = w * 0.75 * labelScale;
-    final double labelTop = shoulderBottom + 20;
+    final double labelTop = shoulderBottom + 20 * scale;
     final double labelH = h * 0.45 * labelScale; // Tall label
 
     final Rect labelRect = Rect.fromCenter(
@@ -773,7 +792,7 @@ class BombaySapphirePainter extends CustomPainter {
     if (labelImage != null) {
       paintImage(
         canvas: canvas,
-        rect: labelRect.inflate(20), // Padding inside inner border
+        rect: labelRect.inflate(20 * scale), // Padding inside inner border
         image: labelImage!,
         fit: BoxFit.contain,
       );
@@ -782,7 +801,7 @@ class BombaySapphirePainter extends CustomPainter {
         canvas,
         "IMAGE LOADING...",
         offset: labelRect.center,
-        style: const TextStyle(fontSize: 10, color: Colors.grey),
+        style: TextStyle(fontSize: 10 * scale, color: Colors.grey),
       );
     }
   }
@@ -842,6 +861,7 @@ class JoseCuervoPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+    final double scale = h / 600.0;
     final centerX = w / 2;
 
     // Dimensions derived from the image
@@ -964,7 +984,7 @@ class JoseCuervoPainter extends CustomPainter {
     final Paint borderPaint = Paint()
       ..color = const Color(0xFF8D6E63).withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
+      ..strokeWidth = 1.0 * scale;
     canvas.drawPath(path, borderPaint);
 
     // --- 3. Details ---
@@ -974,20 +994,27 @@ class JoseCuervoPainter extends CustomPainter {
       canvas,
       "1795",
       centerX,
-      shoulderBottomY - (shoulderHeight * 0.5) + 8,
+      shoulderBottomY - (shoulderHeight * 0.5) + 8 * scale,
+      scale,
     );
 
-    _drawCap(canvas, centerX, neckTopW, neckHeight);
-    _drawMainLabel(canvas, centerX, shoulderBottomY, w, h, baseHeight);
-    _drawBottomLabel(canvas, centerX, w, h, baseHeight);
+    _drawCap(canvas, centerX, neckTopW, neckHeight, scale);
+    _drawMainLabel(canvas, centerX, shoulderBottomY, w, h, baseHeight, scale);
+    _drawBottomLabel(canvas, centerX, w, h, baseHeight, scale);
   }
 
-  void _drawCap(Canvas canvas, double centerX, double neckW, double neckH) {
+  void _drawCap(
+    Canvas canvas,
+    double centerX,
+    double neckW,
+    double neckH,
+    double scale,
+  ) {
     final double capH = neckH * 0.7; // Covers most of neck
     final Rect capRect = Rect.fromLTWH(
-      centerX - neckW / 2 - 1,
+      centerX - neckW / 2 - 1 * scale,
       0,
-      neckW + 2,
+      neckW + 2 * scale,
       capH,
     );
 
@@ -1007,40 +1034,51 @@ class JoseCuervoPainter extends CustomPainter {
 
     // Cap ridges (top part)
     canvas.drawLine(
-      Offset(capRect.left, 5),
-      Offset(capRect.right, 5),
+      Offset(capRect.left, 5 * scale),
+      Offset(capRect.right, 5 * scale),
       Paint()..color = Colors.black12,
     );
     canvas.drawLine(
-      Offset(capRect.left, 15),
-      Offset(capRect.right, 15),
+      Offset(capRect.left, 15 * scale),
+      Offset(capRect.right, 15 * scale),
       Paint()..color = Colors.black12,
     );
 
     // Red Crest
     canvas.drawCircle(
       Offset(centerX, capH * 0.55),
-      8,
+      8 * scale,
       Paint()..color = const Color(0xFF8B0000).withValues(alpha: 0.8),
     );
     // Tiny text
     _drawText(
       canvas,
       "ESTB.",
-      offset: Offset(centerX, capH * 0.55 - 2),
-      style: const TextStyle(color: Colors.white, fontSize: 3),
+      offset: Offset(centerX, capH * 0.55 - 2 * scale),
+      style: TextStyle(color: Colors.white, fontSize: 3 * scale),
     );
 
     // Bottom trim of cap
     canvas.drawRect(
-      Rect.fromLTWH(capRect.left, capRect.bottom - 4, capRect.width, 4),
+      Rect.fromLTWH(
+        capRect.left,
+        capRect.bottom - 4 * scale,
+        capRect.width,
+        4 * scale,
+      ),
       Paint()..color = const Color(0xFF8B0000),
     );
   }
 
-  void _drawEmbossedText(Canvas canvas, String text, double cx, double cy) {
-    const TextStyle style = TextStyle(
-      fontSize: 14,
+  void _drawEmbossedText(
+    Canvas canvas,
+    String text,
+    double cx,
+    double cy,
+    double scale,
+  ) {
+    final TextStyle style = TextStyle(
+      fontSize: 14 * scale,
       fontWeight: FontWeight.w900,
       fontFamily: 'serif',
       color: Colors.transparent,
@@ -1049,14 +1087,14 @@ class JoseCuervoPainter extends CustomPainter {
     _drawText(
       canvas,
       text,
-      offset: Offset(cx + 1, cy + 1),
+      offset: Offset(cx + 1 * scale, cy + 1 * scale),
       style: style.copyWith(color: Colors.black.withValues(alpha: 0.2)),
     );
     // Highlight (Top Left)
     _drawText(
       canvas,
       text,
-      offset: Offset(cx - 1, cy - 1),
+      offset: Offset(cx - 1 * scale, cy - 1 * scale),
       style: style.copyWith(color: Colors.white.withValues(alpha: 0.4)),
     );
   }
@@ -1068,11 +1106,12 @@ class JoseCuervoPainter extends CustomPainter {
     double w,
     double h,
     double baseH,
+    double scale,
   ) {
     // Positioning
-    final double labelTop = bodyTopY + 15;
+    final double labelTop = bodyTopY + 15 * scale;
     // Leave space for red label at bottom
-    final double labelBottom = h - baseH - 45;
+    final double labelBottom = h - baseH - 45 * scale;
     final double labelH = labelBottom - labelTop;
     final double labelW = w * 0.82;
 
@@ -1105,11 +1144,12 @@ class JoseCuervoPainter extends CustomPainter {
     double w,
     double h,
     double baseH,
+    double scale,
   ) {
     // Red Band
-    final double labelH = 50;
+    final double labelH = 50 * scale;
     // Sits in the middle of the base ridges roughly
-    final double labelY = h - baseH - 10;
+    final double labelY = h - baseH - 10 * scale;
 
     Rect rect = Rect.fromLTWH(0, labelY, w, labelH);
 
@@ -1122,11 +1162,11 @@ class JoseCuervoPainter extends CustomPainter {
 
     // Gold stripes top/bottom
     canvas.drawRect(
-      Rect.fromLTWH(0, labelY, w, 2),
+      Rect.fromLTWH(0, labelY, w, 2 * scale),
       Paint()..color = const Color(0xFFFFD700),
     );
     canvas.drawRect(
-      Rect.fromLTWH(0, labelY + labelH - 2, w, 2),
+      Rect.fromLTWH(0, labelY + labelH - 2 * scale, w, 2 * scale),
       Paint()..color = const Color(0xFFFFD700),
     );
 
@@ -1135,10 +1175,10 @@ class JoseCuervoPainter extends CustomPainter {
     _drawText(
       canvas,
       "JALISCO • MEXICO",
-      offset: Offset(centerX, labelY + 10),
-      style: const TextStyle(
+      offset: Offset(centerX, labelY + 10 * scale),
+      style: TextStyle(
         color: Color(0xFFFFB74D),
-        fontSize: 6,
+        fontSize: 6 * scale,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.5,
       ),
@@ -1148,10 +1188,10 @@ class JoseCuervoPainter extends CustomPainter {
     _drawText(
       canvas,
       "HECHO CON",
-      offset: Offset(centerX, labelY + 18),
-      style: const TextStyle(
+      offset: Offset(centerX, labelY + 18 * scale),
+      style: TextStyle(
         color: Color(0xFFFFB74D),
-        fontSize: 5,
+        fontSize: 5 * scale,
         letterSpacing: 1.0,
       ),
     );
@@ -1160,10 +1200,10 @@ class JoseCuervoPainter extends CustomPainter {
     _drawText(
       canvas,
       "AGAVE AZUL",
-      offset: Offset(centerX, labelY + 28),
-      style: const TextStyle(
+      offset: Offset(centerX, labelY + 28 * scale),
+      style: TextStyle(
         color: Colors.white,
-        fontSize: 13,
+        fontSize: 13 * scale,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.2,
       ),
@@ -1173,10 +1213,10 @@ class JoseCuervoPainter extends CustomPainter {
     _drawText(
       canvas,
       "TEQUILA REPOSADO",
-      offset: Offset(centerX, labelY + 38),
-      style: const TextStyle(
+      offset: Offset(centerX, labelY + 38 * scale),
+      style: TextStyle(
         color: Color(0xFFFFB74D),
-        fontSize: 5,
+        fontSize: 5 * scale,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -1214,6 +1254,7 @@ class PatronBottlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+    final double scale = h / 600.0;
     final centerX = w / 2;
 
     // --- Dimensions ---
@@ -1232,14 +1273,14 @@ class PatronBottlePainter extends CustomPainter {
     final double bodyMaxW = w;
     final double bodyBottomW = w * 0.92;
     // Base is heavy glass
-    final double baseH = 20;
+    final double baseH = 20 * scale;
 
     // --- 1. Path Definition ---
     final path = Path();
 
     // Top of Neck (Lip)
     final double lipW = neckW * 1.2;
-    final double lipH = 8;
+    final double lipH = 8 * scale;
 
     // Start at Top Left of neck lip
     path.moveTo(centerX - lipW / 2, neckTopY);
@@ -1316,8 +1357,8 @@ class PatronBottlePainter extends CustomPainter {
     canvas.clipPath(path);
 
     // Liquid Level
-    final double liquidH = (h - 20) * fillLevel; // Subtract base
-    final double surfaceY = h - 20 - liquidH;
+    final double liquidH = (h - 20 * scale) * fillLevel; // Subtract base
+    final double surfaceY = h - 20 * scale - liquidH;
 
     final Paint liquidPaint = Paint()
       ..color = liquidColor
@@ -1343,30 +1384,36 @@ class PatronBottlePainter extends CustomPainter {
     final Paint borderPaint = Paint()
       ..color = Colors.blueGrey.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 1.5 * scale;
     canvas.drawPath(path, borderPaint);
 
     // Add side ripple lines for that "blown glass" look on the sides
-    _drawGlassRipples(canvas, path, w, h, shoulderStart);
+    _drawGlassRipples(canvas, path, w, h, shoulderStart, scale);
 
     // --- 3. Details ---
 
     // Cork
-    _drawCork(canvas, centerX, neckTopY, corkSize);
+    _drawCork(canvas, centerX, neckTopY, corkSize, scale);
 
     // Neck Label (Green Ribbon)
-    _drawNeckLabel(canvas, centerX, neckW, neckTopY, neckH);
+    _drawNeckLabel(canvas, centerX, neckW, neckTopY, neckH, scale);
 
     // Main Logo & Text
-    _drawMainLabel(canvas, centerX, h, shoulderStart);
+    _drawMainLabel(canvas, centerX, h, shoulderStart, scale);
   }
 
-  void _drawCork(Canvas canvas, double centerX, double neckY, double size) {
+  void _drawCork(
+    Canvas canvas,
+    double centerX,
+    double neckY,
+    double size,
+    double scale,
+  ) {
     // Large round ball, slightly flattened bottom where it meets glass
     final double r = size / 2;
     final Offset center = Offset(
       centerX,
-      neckY - r + 10,
+      neckY - r + 10 * scale,
     ); // Sit inside neck slightly
 
     final Paint corkPaint = Paint()
@@ -1394,7 +1441,7 @@ class PatronBottlePainter extends CustomPainter {
     for (int i = 0; i < 20; i++) {
       double theta = rnd.nextDouble() * 2 * math.pi;
       double dist = rnd.nextDouble() * (r * 0.8);
-      double spotR = rnd.nextDouble() * 2 + 1;
+      double spotR = (rnd.nextDouble() * 2 + 1) * scale;
       canvas.drawCircle(
         center + Offset(dist * math.cos(theta), dist * math.sin(theta)),
         spotR,
@@ -1409,6 +1456,7 @@ class PatronBottlePainter extends CustomPainter {
     double neckW,
     double neckTopY,
     double neckH,
+    double scale,
   ) {
     // Green band
     final double bandH = neckH * 0.5;
@@ -1433,22 +1481,32 @@ class PatronBottlePainter extends CustomPainter {
     final Paint patternPaint = Paint()
       ..color = const Color(0xFF33691E).withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 1.5 * scale;
 
     final Path p = Path();
     // Simple wave pattern
-    for (double x = rect.left; x < rect.right; x += 10) {
-      p.moveTo(x, rect.top + 5);
-      p.quadraticBezierTo(x + 5, rect.top + 15, x + 10, rect.top + 5);
+    for (double x = rect.left; x < rect.right; x += 10 * scale) {
+      p.moveTo(x, rect.top + 5 * scale);
+      p.quadraticBezierTo(
+        x + 5 * scale,
+        rect.top + 15 * scale,
+        x + 10 * scale,
+        rect.top + 5 * scale,
+      );
 
-      p.moveTo(x, rect.bottom - 5);
-      p.quadraticBezierTo(x + 5, rect.bottom - 15, x + 10, rect.bottom - 5);
+      p.moveTo(x, rect.bottom - 5 * scale);
+      p.quadraticBezierTo(
+        x + 5 * scale,
+        rect.bottom - 15 * scale,
+        x + 10 * scale,
+        rect.bottom - 5 * scale,
+      );
     }
     canvas.drawPath(p, patternPaint);
 
     // Center Bee on neck? (Sometimes is there)
     // Image shows a bee
-    _drawBee(canvas, Offset(centerX, rect.center.dy), 10);
+    _drawBee(canvas, Offset(centerX, rect.center.dy), 10 * scale, scale);
   }
 
   void _drawMainLabel(
@@ -1456,6 +1514,7 @@ class PatronBottlePainter extends CustomPainter {
     double centerX,
     double h,
     double shoulderEnd,
+    double scale,
   ) {
     // "PATRÓN"
     // "SILVER"
@@ -1464,18 +1523,18 @@ class PatronBottlePainter extends CustomPainter {
     double currentY = shoulderEnd + (h - shoulderEnd) * 0.25;
 
     // 1. BEE LOGO
-    _drawBee(canvas, Offset(centerX, currentY), 25);
+    _drawBee(canvas, Offset(centerX, currentY), 25 * scale, scale);
 
-    currentY += 40;
+    currentY += 40 * scale;
 
     // 2. PATRÓN
     _drawText(
       canvas,
       "PATRÓN",
       offset: Offset(centerX, currentY),
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'Serif',
-        fontSize: 32,
+        fontSize: 32 * scale,
         fontWeight: FontWeight.w400, // Usually fairly thin but sharp serifs
         color: Colors.black,
         letterSpacing: 2.0,
@@ -1485,11 +1544,14 @@ class PatronBottlePainter extends CustomPainter {
     _drawText(
       canvas,
       "®",
-      offset: Offset(centerX + 75, currentY - 5), // Rough offset
-      style: const TextStyle(fontSize: 8, color: Colors.black54),
+      offset: Offset(
+        centerX + 75 * scale,
+        currentY - 5 * scale,
+      ), // Rough offset
+      style: TextStyle(fontSize: 8 * scale, color: Colors.black54),
     );
 
-    currentY += 30;
+    currentY += 30 * scale;
 
     // 3. SILVER (Greenish font style?)
     // Actually usually black or dark grey with green accent line?
@@ -1499,69 +1561,69 @@ class PatronBottlePainter extends CustomPainter {
       canvas,
       "SILVER",
       offset: Offset(centerX, currentY),
-      style: const TextStyle(
-        fontSize: 24,
+      style: TextStyle(
+        fontSize: 24 * scale,
         fontWeight: FontWeight.bold,
         color: Color(0xFF33691E), // Dark Green
         fontFamily: 'Sans', // Looks slightly organic
       ),
     );
 
-    currentY += 30;
+    currentY += 30 * scale;
 
     // 4. TEQUILA 100% DE AGAVE
     _drawText(
       canvas,
       "TEQUILA 100% DE AGAVE",
       offset: Offset(centerX, currentY),
-      style: const TextStyle(
-        fontSize: 10,
+      style: TextStyle(
+        fontSize: 10 * scale,
         color: Colors.black87,
         letterSpacing: 1.0,
       ),
     );
 
-    currentY += 20;
+    currentY += 20 * scale;
 
     // 5. HECHO EN MEXICO (Green background pill)
     // Lime green background
     final Rect tagRect = Rect.fromCenter(
       center: Offset(centerX, currentY),
-      width: 100,
-      height: 16,
+      width: 100 * scale,
+      height: 16 * scale,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(tagRect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(tagRect, Radius.circular(8 * scale)),
       Paint()..color = const Color(0xFF76FF03),
     );
     _drawText(
       canvas,
       "HECHO EN MEXICO",
       offset: Offset(centerX, currentY),
-      style: const TextStyle(
-        fontSize: 8,
+      style: TextStyle(
+        fontSize: 8 * scale,
         fontWeight: FontWeight.bold,
         color: Color(0xFF1B5E20),
       ),
     );
 
     // Bottom text (750ml ... 40% alc)
-    double bottomTxtY = h - 30;
+    double bottomTxtY = h - 30 * scale;
     _drawText(
       canvas,
       "750 ml",
-      offset: Offset(centerX - 60, bottomTxtY),
-      style: const TextStyle(fontSize: 10, color: Colors.black54),
+      offset: Offset(centerX - 60 * scale, bottomTxtY),
+      style: TextStyle(fontSize: 10 * scale, color: Colors.black54),
     );
     _drawText(
       canvas,
       "40% alc./vol.",
-      offset: Offset(centerX + 60, bottomTxtY),
-      style: const TextStyle(fontSize: 10, color: Colors.black54),
+      offset: Offset(centerX + 60 * scale, bottomTxtY),
+      style: TextStyle(fontSize: 10 * scale, color: Colors.black54),
     );
   }
 
-  void _drawBee(Canvas canvas, Offset center, double size) {
+  void _drawBee(Canvas canvas, Offset center, double size, double scale) {
     // Gold/Bronze Bee
     final Paint beePaint = Paint()
       ..color = const Color(0xFFCDA434); // Metallic gold
@@ -1585,7 +1647,7 @@ class PatronBottlePainter extends CustomPainter {
       ),
       beePaint
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
+        ..strokeWidth = 1.5 * scale,
     );
     canvas.restore();
 
@@ -1601,7 +1663,7 @@ class PatronBottlePainter extends CustomPainter {
       ),
       beePaint
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
+        ..strokeWidth = 1.5 * scale,
     );
     canvas.restore();
 
@@ -1619,6 +1681,7 @@ class PatronBottlePainter extends CustomPainter {
     double w,
     double h,
     double shoulderY,
+    double scale,
   ) {
     // Subtle white highlights on the sides to simulate the "rippled glass" surface
     canvas.save();
@@ -1627,17 +1690,25 @@ class PatronBottlePainter extends CustomPainter {
     final Paint ripplePaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+      ..strokeWidth = 4 * scale
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 * scale);
 
     // Left ripples
-    for (double y = shoulderY; y < h; y += 40) {
-      canvas.drawLine(Offset(0, y), Offset(w * 0.2, y + 10), ripplePaint);
+    for (double y = shoulderY; y < h; y += 40 * scale) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(w * 0.2, y + 10 * scale),
+        ripplePaint,
+      );
     }
 
     // Right ripples
-    for (double y = shoulderY + 20; y < h; y += 40) {
-      canvas.drawLine(Offset(w, y), Offset(w * 0.8, y + 10), ripplePaint);
+    for (double y = shoulderY + 20 * scale; y < h; y += 40 * scale) {
+      canvas.drawLine(
+        Offset(w, y),
+        Offset(w * 0.8, y + 10 * scale),
+        ripplePaint,
+      );
     }
 
     canvas.restore();
