@@ -295,19 +295,6 @@ class BacardiBottlePainter extends CustomPainter {
     // Draw Liquid Rect
     canvas.drawRect(Rect.fromLTRB(0, surfaceY, w, h + 100), liquidPaint);
 
-    // Liquid Surface (Ellipse)
-    if (fillLevel > 0 && fillLevel < 1.0) {
-      final surfacePaint = Paint()..color = Colors.white.withValues(alpha: 0.3);
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(w / 2, surfaceY),
-          width: w * 0.9,
-          height: 10,
-        ),
-        surfacePaint,
-      );
-    }
-
     canvas.restore();
 
     // Glass Border
@@ -634,27 +621,6 @@ class BombaySapphirePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawRect(Rect.fromLTRB(0, surfaceY, w, h + 100), liquidPaint);
 
-    // Surface Line
-    if (fillLevel > 0 && fillLevel < 1.0) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, surfaceY),
-          width: w * 0.9,
-          height: 8,
-        ),
-        Paint()..color = Colors.white.withValues(alpha: 0.3),
-      );
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, surfaceY),
-          width: w * 0.9,
-          height: 8,
-        ),
-        Paint()
-          ..color = glassBlue.withValues(alpha: 0.5)
-          ..style = PaintingStyle.stroke,
-      );
-    }
     canvas.restore();
 
     // --- Facet Highlights (Vertical Lines) ---
@@ -953,30 +919,6 @@ class JoseCuervoPainter extends CustomPainter {
       ..color = liquidColor
       ..style = PaintingStyle.fill;
     canvas.drawRect(Rect.fromLTRB(0, surfaceY, w, h + 100), liquidPaint);
-
-    // Surface Ellipse
-    if (fillLevel > 0 && fillLevel < 1.0) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, surfaceY),
-          width: w * 0.7,
-          height: 6,
-        ),
-        Paint()..color = Colors.white.withValues(alpha: 0.5),
-      );
-      // Darker rim line
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, surfaceY),
-          width: w * 0.7,
-          height: 6,
-        ),
-        Paint()
-          ..color = Colors.amber[900]!.withValues(alpha: 0.3)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1,
-      );
-    }
 
     canvas.restore();
 
@@ -1365,18 +1307,6 @@ class PatronBottlePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     canvas.drawRect(Rect.fromLTRB(0, surfaceY, w, h + 100), liquidPaint);
-
-    // Surface
-    if (fillLevel > 0 && fillLevel < 1.0) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, surfaceY),
-          width: w * 0.8,
-          height: 10,
-        ),
-        Paint()..color = Colors.white.withValues(alpha: 0.4),
-      );
-    }
 
     canvas.restore();
 
