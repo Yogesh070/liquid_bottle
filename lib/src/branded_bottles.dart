@@ -150,7 +150,7 @@ class _BrandedBottleState extends State<BrandedBottle> {
             break;
           case BrandedBottleType.patron:
             // Patron is squat: width is nearly equal to body height
-            bottleWidth = bottleHeight * 0.65;
+            bottleWidth = bottleHeight * 0.85;
             liquidColor = const Color(0xFFE3F2FD).withValues(alpha: 0.5);
             painterFactory = (visualLevel, rawLevel, color) =>
                 PatronBottlePainter(
@@ -1200,9 +1200,7 @@ class PatronBottlePainter extends CustomPainter {
     final centerX = w / 2;
 
     // --- Dimensions ---
-    // Start drawing bottle from below the cork
-    final double corkSize = w * 0.35; // Large round cork
-    final double neckTopY = corkSize * 0.85; // Overlap slightly
+    final double neckTopY = 0;
 
     // Neck
     final double neckW = w * 0.28;
@@ -1322,62 +1320,11 @@ class PatronBottlePainter extends CustomPainter {
 
     // --- 3. Details ---
 
-    // Cork
-    _drawCork(canvas, centerX, neckTopY, corkSize, scale);
-
     // Neck Label (Green Ribbon)
     _drawNeckLabel(canvas, centerX, neckW, neckTopY, neckH, scale);
 
     // Main Logo & Text
     _drawMainLabel(canvas, centerX, h, shoulderStart, scale);
-  }
-
-  void _drawCork(
-    Canvas canvas,
-    double centerX,
-    double neckY,
-    double size,
-    double scale,
-  ) {
-    // Large round ball, slightly flattened bottom where it meets glass
-    final double r = size / 2;
-    final Offset center = Offset(
-      centerX,
-      neckY - r + 10 * scale,
-    ); // Sit inside neck slightly
-
-    final Paint corkPaint = Paint()
-      ..color = const Color(0xFFD7CCC8); // Base cork color
-
-    // Add texture (noise/dots)
-    // We'll use a shader for texture
-    // For now, simpler gradient
-    final Gradient corkGrad = RadialGradient(
-      colors: [const Color(0xFFEFEBE9), const Color(0xFFA1887F)],
-      center: Alignment(-0.3, -0.3),
-      radius: 1.0,
-    );
-
-    corkPaint.shader = corkGrad.createShader(
-      Rect.fromCircle(center: center, radius: r),
-    );
-
-    canvas.drawCircle(center, r, corkPaint);
-
-    // Draw some "cork holes"
-    final Paint spotPaint = Paint()
-      ..color = const Color(0xFF5D4037).withValues(alpha: 0.3);
-    final math.Random rnd = math.Random(42);
-    for (int i = 0; i < 20; i++) {
-      double theta = rnd.nextDouble() * 2 * math.pi;
-      double dist = rnd.nextDouble() * (r * 0.8);
-      double spotR = (rnd.nextDouble() * 2 + 1) * scale;
-      canvas.drawCircle(
-        center + Offset(dist * math.cos(theta), dist * math.sin(theta)),
-        spotR,
-        spotPaint,
-      );
-    }
   }
 
   void _drawNeckLabel(

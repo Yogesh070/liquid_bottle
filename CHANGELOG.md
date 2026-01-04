@@ -19,3 +19,8 @@
 ## 0.0.5
 
 * Add height-based scaling to bottle drawings for improved responsiveness.
+
+## 0.0.6
+
+* Remove liquid surface ellipse drawing from various bottle designs.
+* Adjust Patron bottle width and remove cork drawing implementation.
