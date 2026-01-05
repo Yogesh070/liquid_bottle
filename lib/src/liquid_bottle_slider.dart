@@ -6,7 +6,7 @@ import 'bottle_path_factory.dart';
 
 class LiquidBottleSlider extends StatefulWidget {
   final double value; // 0.0 to 1.0
-  final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChanged;
   final BottleType bottleType;
   final Color liquidColor;
   final CustomPainter Function(
@@ -20,7 +20,7 @@ class LiquidBottleSlider extends StatefulWidget {
   const LiquidBottleSlider({
     super.key,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
     required this.bottleType,
     this.liquidColor = const Color(0xFFC6A984), // Whiskey color
     this.customPainterBuilder,
@@ -128,7 +128,7 @@ class _LiquidBottleSliderState extends State<LiquidBottleSlider>
     // 4. Report clamped value to parent
     double clamped = newValue.clamp(0.0, 1.0);
     if (clamped != widget.value) {
-      widget.onChanged(clamped);
+      widget.onChanged?.call(clamped);
     }
   }
 
@@ -171,25 +171,30 @@ class _LiquidBottleSliderState extends State<LiquidBottleSlider>
           slider: true,
           label: "${widget.bottleType.name} Volume",
           value: "${(widget.value * 100).round()}%",
-          onScrollUp: () {
-            double newVal = (widget.value + 0.1).clamp(0.0, 1.0);
-            widget.onChanged(newVal);
-            setState(() => _currentDragValue = newVal);
-          },
-          onScrollDown: () {
-            double newVal = (widget.value - 0.1).clamp(0.0, 1.0);
-            widget.onChanged(newVal);
-            setState(() => _currentDragValue = newVal);
-          },
+          onScrollUp: widget.onChanged != null
+              ? () {
+                  double newVal = (widget.value + 0.1).clamp(0.0, 1.0);
+                  widget.onChanged!(newVal);
+                  setState(() => _currentDragValue = newVal);
+                }
+              : null,
+          onScrollDown: widget.onChanged != null
+              ? () {
+                  double newVal = (widget.value - 0.1).clamp(0.0, 1.0);
+                  widget.onChanged!(newVal);
+                  setState(() => _currentDragValue = newVal);
+                }
+              : null,
           child: GestureDetector(
             // HitTestBehavior.opaque ensures we capture touches even on empty areas
             // if we were filling a larger container.
             // Here we wrap the CustomPaint which defines the hit area.
             behavior: HitTestBehavior.opaque,
-            onVerticalDragStart: _onDragStart,
-            onVerticalDragUpdate: (d) =>
-                _onDragUpdate(d, constraints.maxHeight),
-            onVerticalDragEnd: _onDragEnd,
+            onVerticalDragStart: widget.onChanged != null ? _onDragStart : null,
+            onVerticalDragUpdate: widget.onChanged != null
+                ? (d) => _onDragUpdate(d, constraints.maxHeight)
+                : null,
+            onVerticalDragEnd: widget.onChanged != null ? _onDragEnd : null,
             child: CustomPaint(
               size: Size(constraints.maxWidth, constraints.maxHeight),
               painter: widget.customPainterBuilder != null

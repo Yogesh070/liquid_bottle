@@ -166,7 +166,7 @@ class _BrandedBottleState extends State<BrandedBottle> {
             height: bottleHeight,
             child: LiquidBottleSlider(
               value: widget.fillLevel,
-              onChanged: widget.onFillChanged ?? (val) {},
+              onChanged: widget.onFillChanged,
               bottleType: BottleType.standards.first, // Placeholder
               liquidColor: liquidColor,
               customPainterBuilder:

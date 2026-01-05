@@ -24,3 +24,8 @@
 
 * Remove liquid surface ellipse drawing from various bottle designs.
 * Adjust Patron bottle width and remove cork drawing implementation.
+
+## 0.0.7
+
+* Support read-only mode in `LiquidBottleSlider` by accepting a null `onChanged` callback.
+* Fix `BrandedBottle` to disable interaction when `onFillChanged` is null.
